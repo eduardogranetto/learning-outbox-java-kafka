@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS orders (
+    id UUID PRIMARY KEY,
+    total NUMERIC(19,2) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL,
+    created_by TEXT,
+    status TEXT NOT NULL DEFAULT 'PENDING',
+    processed_at TIMESTAMPTZ
+);
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'PENDING';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS processed_at TIMESTAMPTZ;
+
+CREATE TABLE IF NOT EXISTS outbox (
+    id UUID PRIMARY KEY,
+    status TEXT NOT NULL,
+    content JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    published_at TIMESTAMPTZ
+);

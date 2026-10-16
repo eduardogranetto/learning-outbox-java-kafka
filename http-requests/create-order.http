@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "total": 123.45,
+  "description": "test order",
+  "createdBy": "alice"
+}

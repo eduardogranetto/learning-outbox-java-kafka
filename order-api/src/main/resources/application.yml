@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: order-api
+  r2dbc:
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/outbox}
+    username: ${SPRING_R2DBC_USERNAME:postgres}
+    password: ${SPRING_R2DBC_PASSWORD:postgres}
+  sql:
+    init:
+      mode: always
+server:
+  port: 8080

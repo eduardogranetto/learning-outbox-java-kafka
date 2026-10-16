@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: outbox-job
+  # Primary Postgres instance - used for WRITES (status updates to PUBLISHED)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/outbox}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    hikari:
+      read-only: false
+  # Replica Postgres instance - used for READS (polling pending outbox records)
+  replica:
+    datasource:
+      url: ${REPLICA_DATASOURCE_URL:jdbc:postgresql://localhost:5433/outbox}
+      username: ${REPLICA_DATASOURCE_USERNAME:postgres}
+      password: ${REPLICA_DATASOURCE_PASSWORD:postgres}
+      hikari:
+        read-only: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+outbox:
+  poll:
+    ms: 10000
+server:
+  port: 8081
