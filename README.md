@@ -5,30 +5,30 @@
 ```mermaid
 flowchart TD
     %% User & UI
-    UI[order-ui<br/>React + Vite]:::client
-    UI -->|1. POST /api/orders| API(order-api<br/>Spring Boot WebFlux):::api
+    UI["order-ui"]:::client
+    UI -->|1. POST /api/orders| API["order-api"]:::api
 
     %% Order API writes to primary Postgres + outbox
-    API -->|2. INSERT order<br/>INSERT outbox (PENDING)| PG1[(Postgres Primary<br/>port 5432)]:::db
+    API -->|2. INSERT order + outbox PENDING| PG1[("Postgres Primary 5432")]:::db
 
     %% Outbox job reads from replica, publishes to Kafka, writes to primary
-    JOB[outbox-job<br/>scheduled poller]:::worker
-    PG2[(Postgres Replica<br/>port 5433)]:::db
-    KAFKA[(Kafka<br/>order_created topic)]:::msg
+    JOB["outbox-job"]:::worker
+    PG2[("Postgres Replica 5433")]:::db
+    KAFKA[("Kafka order_created")]:::msg
 
     PG1 -.->|replication| PG2
-    JOB -->|3. READ pending<br/>from replica| PG2
-    JOB -->|4. PUBLISH to| KAFKA
-    JOB -->|5. UPDATE status<br/>PUBLISHED| PG1
+    JOB -->|3. READ pending from replica| PG2
+    JOB -->|4. PUBLISH to topic| KAFKA
+    JOB -->|5. UPDATE status PUBLISHED| PG1
 
     %% Order consumer reads Kafka, updates primary Postgres
-    CONSUMER[order-consumer<br/>Kafka listener]:::worker
-    KAFKA -->|6. CONSUME| CONSUMER
-    CONSUMER -->|7. UPDATE status<br/>PROCESSED| PG1
+    CONSUMER["order-consumer"]:::worker
+    KAFKA -->|6. CONSUME event| CONSUMER
+    CONSUMER -->|7. UPDATE status PROCESSED| PG1
 
     %% UI reads status via SSE
-    UI -->|8. GET /orders/:id| API
-    UI -->|9. SSE /orders/:id/status/stream| API
+    UI -->|8. GET order by id| API
+    UI -->|9. SSE status stream| API
     API -->|10. READ orders| PG1
 
     classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
