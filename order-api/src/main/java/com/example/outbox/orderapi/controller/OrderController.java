@@ -35,16 +35,6 @@ public class OrderController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Server-Sent Events stream of the status of a specific order.
-     *
-     * Emits an {@code order-status} event every 2 seconds with the current status and processedAt.
-     * Example:
-     *   data: {"status":"PENDING","processedAt":null}
-     *
-     * Subscribe with:
-     *   curl -N http://localhost:8080/api/orders/{id}/status/stream
-     */
     @GetMapping(value = "/{id}/status/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<OrderService.OrderStatusDto>> streamStatus(@PathVariable UUID id) {
         return orderService.statusStream(id);

@@ -10,13 +10,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Read-only repository that fetches pending outbox records from the PostgreSQL <b>replica</b>.
- *
- * Entities returned here are detached (they are not managed by the primary JPA
- * {@link OutboxRepository}), which is intentional: reads must not happen against the primary so the
- * replica can absorb the polling load.
- */
 @Repository
 public class ReplicaOutboxRepository {
 

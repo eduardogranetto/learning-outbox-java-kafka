@@ -21,9 +21,7 @@ public class OutboxPublisher {
     private static final Logger log = LoggerFactory.getLogger(OutboxPublisher.class);
     private static final String TOPIC = "order_created";
 
-    // Reads pending records from the PostgreSQL replica (read-only).
     private final ReplicaOutboxRepository replicaOutboxRepository;
-    // Writes status updates to the primary PostgreSQL instance (read-write).
     private final OutboxRepository outboxRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -38,15 +36,11 @@ public class OutboxPublisher {
     @Scheduled(fixedDelayString = "${outbox.poll.ms:1000}")
     @Transactional
     public void publishPending() {
-        // Read from replica. Records are detached (not managed by the primary JPA repository).
         List<OutboxRecord> pending = replicaOutboxRepository.findPending();
         for (OutboxRecord record : pending) {
             try {
                 kafkaTemplate.send(TOPIC, record.getContent()).get();
 
-                // Persist the status change on the primary instance. Re-load the record from the
-                // primary so we operate on a managed entity; this also guards against publishing a
-                // record twice if the replica is lagging behind and still reports it as PENDING.
                 OutboxRecord managed = outboxRepository.findById(record.getId())
                         .orElseThrow(() -> new NoSuchElementException(
                                 "Outbox record not found on primary: " + record.getId()));

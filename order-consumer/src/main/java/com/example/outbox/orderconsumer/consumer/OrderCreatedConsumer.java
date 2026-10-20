@@ -1,14 +1,12 @@
 package com.example.outbox.orderconsumer.consumer;
 
+import com.example.outbox.orderconsumer.dto.OrderCreatedEvent;
 import com.example.outbox.orderconsumer.service.OrderStatusService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
-import java.util.UUID;
 
 @Component
 public class OrderCreatedConsumer {
@@ -27,14 +25,8 @@ public class OrderCreatedConsumer {
     public void consume(String message) {
         log.info("Received order_created event: {}", message);
         try {
-            Map<String, Object> content = objectMapper.readValue(message, Map.class);
-            Object orderIdObj = content.get("orderId");
-            if (orderIdObj == null) {
-                log.warn("Consumed message has no orderId field; skipping status update");
-                return;
-            }
-            UUID orderId = UUID.fromString(orderIdObj.toString());
-            orderStatusService.markProcessed(orderId);
+            OrderCreatedEvent event = objectMapper.readValue(message, OrderCreatedEvent.class);
+            orderStatusService.markProcessed(event.orderId());
         } catch (Exception e) {
             log.error("Failed to process order_created event: {}", message, e);
         }

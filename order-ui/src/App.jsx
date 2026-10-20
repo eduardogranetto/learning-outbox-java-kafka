@@ -23,7 +23,6 @@ function App() {
     window.history.pushState({}, '', `/orders/${id}`)
   }
 
-  // Handle browser back/forward buttons
   const handlePopState = () => {
     const path = window.location.pathname
     if (path === '/' || path === '/orders/create') {
@@ -34,7 +33,6 @@ function App() {
     }
   }
 
-  // Initialize route based on current URL
   const initRoute = () => {
     const path = window.location.pathname
     if (path === '/' || path === '/orders/create') {
@@ -49,7 +47,6 @@ function App() {
     }
   }
 
-  // Handle click on anchor links for client-side navigation
   const handleLinkClick = (e) => {
     const link = e.target.closest('a')
     if (!link) return
@@ -68,12 +65,10 @@ function App() {
     }
   }
 
-  // Populate CreateOrder with navigate prop
   const handleOrderCreated = (id) => {
     navigateToDetail(id)
   }
 
-  // Initialize route based on current URL on mount
   useEffect(() => {
     initRoute()
     window.addEventListener('popstate', handlePopState)
